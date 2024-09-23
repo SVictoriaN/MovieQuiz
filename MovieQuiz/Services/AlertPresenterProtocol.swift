@@ -1,0 +1,3 @@
+protocol AlertPresenterProtocol {
+    func presentAlert()
+}
