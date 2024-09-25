@@ -14,6 +14,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
     private var currentQuestion: QuizQuestion?
     private var alertPresenter: AlertPresenter!
+    private var statisticService: StatisticService!
     
     override func viewDidLoad() {
         imageView.layer.masksToBounds = true
@@ -30,6 +31,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory.requestNextQuestion()
         
         alertPresenter = AlertPresenter(viewController: self)
+        
+        statisticService = StatisticService()
         
         super.viewDidLoad()
     }
@@ -99,9 +102,27 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func show(quiz result: QuizResultsViewModel) {
+        let correctAnswers = statisticService.correctAnswers
+        let totalAnswers = statisticService.totalAnswers
+        let gamesCount = statisticService.gamesCount
+        let bestGame = statisticService.bestGame
+        
+        let accuracy = totalAnswers > 0 ? String(format: "%.2f", (Double(correctAnswers) / Double(totalAnswers)) * 100) : "0.00"
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        let formattedDate = dateFormatter.string(from: bestGame.date)
+        
+        let message = """
+              Ваш результат: \(correctAnswers)/\(totalAnswers)\n
+              Количество сыгранных квизов: \(gamesCount)\n
+              Рекорд: \(bestGame.correct) из \(bestGame.total) (дата: \(formattedDate))\n
+              Средняя точность: \(accuracy)%\n
+              """
+        
         let alertModel = AlertModel(
             title: result.title,
-            message: result.text,
+            message: message,
             buttonText: result.buttonText,
             completion: { [weak self] in
                 guard let self = self else { return }
@@ -113,7 +134,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         )
         
         alertPresenter.presentAlert(with: alertModel)
-        
         alertPresenter.delegate?.didPresentAlert(with: alertModel)
     }
     
@@ -121,13 +141,18 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         if currentQuestionIndex == questionsAmount - 1 {
             imageView.layer.borderColor = UIColor.clear.cgColor
             
-            let text = correctAnswers == questionsAmount ?
+            let text: String = correctAnswers == questionsAmount ?
             "Поздравляем, вы ответили на 10 из 10!" :
             "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
+            
             let viewModel = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
                 text: text,
-                buttonText: "Сыграть ещё раз")
+                buttonText: "Сыграть ещё раз"
+            )
+            
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
+    
             show(quiz: viewModel)
         } else {
             currentQuestionIndex += 1
