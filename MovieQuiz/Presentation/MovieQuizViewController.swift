@@ -10,11 +10,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private var correctAnswers = 0
     
-    private let questionsAmount: Int = 10
-    private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
+    private let questionsAmount = 10
+    private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
-    private var alertPresenter: AlertPresenter!
-    private var statisticService: StatisticService!
+    private var alertPresenter: AlertPresenter?
+    private var statisticService: StatisticServiceProtocol?
     
     override func viewDidLoad() {
         imageView.layer.masksToBounds = true
@@ -102,19 +102,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func show(quiz result: QuizResultsViewModel) {
-        let correctAnswers = statisticService.correctAnswers
-        let totalAnswers = statisticService.totalAnswers
+        guard let statisticService = statisticService else { return }
+       
         let gamesCount = statisticService.gamesCount
         let bestGame = statisticService.bestGame
-        
-        let accuracy = totalAnswers > 0 ? String(format: "%.2f", (Double(correctAnswers) / Double(totalAnswers)) * 100) : "0.00"
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy"
-        let formattedDate = dateFormatter.string(from: bestGame.date)
-        
+        let accuracy = statisticService.totalAccuracy
+        let formattedDate = (bestGame.date).dateTimeString
         let message = """
-              Ваш результат: \(correctAnswers)/\(totalAnswers)\n
+              Ваш результат: "\(correctAnswers)/ \(questionsAmount)" \n
               Количество сыгранных квизов: \(gamesCount)\n
               Рекорд: \(bestGame.correct) из \(bestGame.total) (дата: \(formattedDate))\n
               Средняя точность: \(accuracy)%\n
@@ -129,18 +124,18 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 self.currentQuestionIndex = 0
                 self.correctAnswers = 0
                 
-                questionFactory.requestNextQuestion()
+                questionFactory?.requestNextQuestion()
             }
         )
         
-        alertPresenter.presentAlert(with: alertModel)
-        alertPresenter.delegate?.didPresentAlert(with: alertModel)
+        alertPresenter?.presentAlert(with: alertModel)
+        alertPresenter?.delegate?.didPresentAlert(with: alertModel)
     }
     
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount - 1 {
             imageView.layer.borderColor = UIColor.clear.cgColor
-            
+
             let text: String = correctAnswers == questionsAmount ?
             "Поздравляем, вы ответили на 10 из 10!" :
             "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
@@ -151,14 +146,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 buttonText: "Сыграть ещё раз"
             )
             
-            statisticService.store(correct: correctAnswers, total: questionsAmount)
-    
             show(quiz: viewModel)
         } else {
             currentQuestionIndex += 1
             imageView.layer.borderColor = UIColor.clear.cgColor
-            
-            self.questionFactory.requestNextQuestion()
+            statisticService?.store(correct: correctAnswers, total: questionsAmount)
+            self.questionFactory?.requestNextQuestion()
         }
     }
 }

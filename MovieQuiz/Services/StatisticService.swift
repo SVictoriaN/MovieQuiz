@@ -2,7 +2,7 @@ import Foundation
 
 final class StatisticService: StatisticServiceProtocol {
     
-    private let storage: UserDefaults = .standard
+    private let storage = UserDefaults.standard
     private enum Keys: String {
         case correct
         case bestGame
@@ -47,32 +47,9 @@ final class StatisticService: StatisticServiceProtocol {
         }
     }
     
-    var correctAnswers:Int {
-        get {
-            return storage.integer(forKey: Keys.correctAnswers.rawValue)
-        }
-        set {
-            storage.set(newValue, forKey: Keys.correctAnswers.rawValue)
-        }
-    }
-    
-    var totalAnswers: Int {
-        get {
-            return storage.integer(forKey: Keys.totalAnswers.rawValue)
-        }
-        set {
-            storage.set(newValue, forKey: Keys.totalAnswers.rawValue)
-        }
-    }
-    
     func store(correct count: Int, total amount: Int) {
         gamesCount += 1
-        correctAnswers += count
-        totalAnswers += amount
-        
-        guard totalAnswers > 0 else { return }
-        let newAccuracy = Double(correctAnswers) / Double(totalAnswers) * 100.0
-        totalAccuracy = newAccuracy
+        totalAccuracy = Double(count) / Double(amount) * 100
         
         let currentGameResult = GameResult(correct: count, total: amount, date: Date())
         if currentGameResult.isBetterThan(bestGame) {
