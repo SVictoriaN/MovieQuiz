@@ -103,16 +103,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func show(quiz result: QuizResultsViewModel) {
         guard let statisticService = statisticService else { return }
-       
+        
         let gamesCount = statisticService.gamesCount
         let bestGame = statisticService.bestGame
-        let accuracy = statisticService.totalAccuracy
         let formattedDate = (bestGame.date).dateTimeString
+        let totalCorrectAnswers = statisticService.totalCorrectAnswers
+        let totalQuestions = statisticService.totalQuestions
+        
+        let accuracy = totalQuestions > 0 ? (Double(totalCorrectAnswers) / Double(totalQuestions)) * 100 : 0.0
+        let accuracyString = String(format: "%.2f", accuracy)
+        
         let message = """
               Ваш результат: \(correctAnswers) / \(questionsAmount) \n
               Количество сыгранных квизов: \(gamesCount)\n
               Рекорд: \(bestGame.correct) из \(bestGame.total) (дата: \(formattedDate))\n
-              Средняя точность: \(accuracy)%\n
+              Средняя точность: \(accuracyString)%\n
               """
         
         let alertModel = AlertModel(
@@ -136,7 +141,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         if currentQuestionIndex == questionsAmount - 1 {
             imageView.layer.borderColor = UIColor.clear.cgColor
             statisticService?.store(correct: correctAnswers, total: questionsAmount)
-
+            
             let text: String = correctAnswers == questionsAmount ?
             "Поздравляем, вы ответили на 10 из 10!" :
             "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"

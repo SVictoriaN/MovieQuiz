@@ -9,9 +9,9 @@ final class StatisticService: StatisticServiceProtocol {
         case gamesCount
         case total
         case date
-        case correctAnswers
-        case totalAnswers
         case totalAccuracy
+        case totalCorrectAnswers
+        case totalQuestions
     }
     
     var gamesCount: Int {
@@ -38,6 +38,24 @@ final class StatisticService: StatisticServiceProtocol {
         }
     }
     
+    var totalCorrectAnswers: Int {
+        get {
+            storage.integer(forKey: Keys.totalCorrectAnswers.rawValue)
+        }
+        set {
+            storage.set(newValue, forKey: Keys.totalCorrectAnswers.rawValue)
+        }
+    }
+    
+    var totalQuestions: Int {
+        get {
+            storage.integer(forKey: Keys.totalQuestions.rawValue)
+        }
+        set {
+            storage.set(newValue, forKey: Keys.totalQuestions.rawValue)
+        }
+    }
+    
     var totalAccuracy: Double {
         get {
             return storage.double(forKey: Keys.totalAccuracy.rawValue)
@@ -49,7 +67,11 @@ final class StatisticService: StatisticServiceProtocol {
     
     func store(correct count: Int, total amount: Int) {
         gamesCount += 1
-        totalAccuracy = Double(count) / Double(amount) * 100
+        totalCorrectAnswers += count
+        totalQuestions += amount
+        guard totalCorrectAnswers > 0 else { return }
+        let newAccuracy = Double(totalCorrectAnswers) / Double(totalQuestions) * 100.0
+        totalAccuracy = newAccuracy
         
         let currentGameResult = GameResult(correct: count, total: amount, date: Date())
         if currentGameResult.isBetterThan(bestGame) {
