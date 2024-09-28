@@ -111,10 +111,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let gamesCount = statisticService.gamesCount
         let bestGame = statisticService.bestGame
         let formattedDate = (bestGame.date).dateTimeString
-        let totalCorrectAnswers = statisticService.totalCorrectAnswers
-        let totalQuestions = statisticService.totalQuestions
         
-        let accuracy = totalQuestions > 0 ? (Double(totalCorrectAnswers) / Double(totalQuestions)) * 100 : 0.0
+        let accuracy = statisticService.getCurrentAccuracy()
         let accuracyString = String(format: "%.2f", accuracy)
         
         let message = """

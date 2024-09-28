@@ -65,6 +65,11 @@ final class StatisticService: StatisticServiceProtocol {
         }
     }
     
+    func getCurrentAccuracy() -> Double {
+        guard totalQuestions > 0 else { return 0.0 }
+        return (Double(totalCorrectAnswers) / Double(totalQuestions)) * 100.0
+    }
+    
     func store(correct count: Int, total amount: Int) {
         gamesCount += 1
         totalCorrectAnswers += count

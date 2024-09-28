@@ -5,5 +5,8 @@ protocol StatisticServiceProtocol {
     var totalQuestions: Int { get }
     var totalCorrectAnswers: Int { get }
     
+    func getCurrentAccuracy() -> Double
+    
     func store(correct count: Int, total amount: Int)
+    
 }
