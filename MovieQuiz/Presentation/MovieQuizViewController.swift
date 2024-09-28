@@ -17,9 +17,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var statisticService: StatisticServiceProtocol?
     
     override func viewDidLoad() {
-        imageView.layer.masksToBounds = true
-        imageView.layer.cornerRadius = 20
-        imageView.layer.borderWidth = 8
+        configureView()
         
         currentQuestionIndex = 0
         correctAnswers = 0
@@ -71,6 +69,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     // MARK: - Private functions
+    private func configureView() {
+        imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = 20
+        imageView.layer.borderWidth = 8
+    }
+    
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
