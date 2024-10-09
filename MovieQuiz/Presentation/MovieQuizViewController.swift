@@ -79,7 +79,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     // MARK: - Private functions
-        
+    
     private func configureView() {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
