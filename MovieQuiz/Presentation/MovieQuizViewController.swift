@@ -5,12 +5,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet weak private var imageView: UIImageView!
     @IBOutlet weak private var textLabel: UILabel!
     @IBOutlet weak private var counterLabel: UILabel!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     private var currentQuestionIndex = 0
-    
     private var correctAnswers = 0
-    
     private let questionsAmount = 10
+    
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var alertPresenter: AlertPresenter?
@@ -69,6 +69,35 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     // MARK: - Private functions
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false // говорим, что индикатор загрузки не скрыт
+        activityIndicator.startAnimating() // включаем анимацию
+    }
+    
+    private func hideLoadingIndicator() {
+           activityIndicator.isHidden = true
+           activityIndicator.stopAnimating()
+       }
+       
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Попробовать еще раз") { [weak self] in
+            guard let self = self else { return }
+            
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            
+            self.questionFactory?.requestNextQuestion()
+        }
+        
+        alertPresenter?.show(in: self, model: model)
+    }
+    
     private func configureView() {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
@@ -111,7 +140,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let gamesCount = statisticService.gamesCount
         let bestGame = statisticService.bestGame
         let formattedDate = (bestGame.date).dateTimeString
-        
+
         let accuracy = statisticService.getCurrentAccuracy()
         let accuracyString = String(format: "%.2f", accuracy)
         
