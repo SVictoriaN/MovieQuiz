@@ -21,6 +21,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showLoadingIndicator()
         configureView()
         
+        activityIndicator.hidesWhenStopped = true
+        
         currentQuestionIndex = 0
         correctAnswers = 0
         
@@ -61,24 +63,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - Actions
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let givenAnswer = false
-        
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        answerGiven(answer: false)
     }
-    
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        
-        let givenAnswer = true
-        
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        answerGiven(answer: true)
     }
     // MARK: - Private functions
+    
+    private func answerGiven(answer: Bool) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        
+        showAnswerResult(isCorrect: answer == currentQuestion.correctAnswer)
+    }
     
     private func configureView() {
         imageView.layer.masksToBounds = true
@@ -173,12 +171,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showLoadingIndicator() {
-        activityIndicator.isHidden = false // говорим, что индикатор загрузки не скрыт
         activityIndicator.startAnimating() // включаем анимацию
     }
     
     private func hideLoadingIndicator() {
-        activityIndicator.isHidden = true
         activityIndicator.stopAnimating()
     }
     
