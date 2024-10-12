@@ -171,7 +171,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showLoadingIndicator() {
-        activityIndicator.startAnimating() // включаем анимацию
+        activityIndicator.startAnimating() 
     }
     
     private func hideLoadingIndicator() {
