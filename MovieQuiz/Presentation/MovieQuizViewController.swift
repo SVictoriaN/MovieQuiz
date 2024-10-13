@@ -20,6 +20,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showLoadingIndicator()
         configureView()
         
+        presenter.viewController = self
+        
         activityIndicator.hidesWhenStopped = true
         presenter.resetQuestionIndex()
         correctAnswers = 0
@@ -61,21 +63,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - Actions
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        answerGiven(answer: false)
+        presenter.currentQuestion = currentQuestion
+        presenter.noButtonClicked()
     }
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        answerGiven(answer: true)
+        presenter.currentQuestion = currentQuestion
+        presenter.yesButtonClicked()
     }
     // MARK: - Private functions
-    
-    private func answerGiven(answer: Bool) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        
-        showAnswerResult(isCorrect: answer == currentQuestion.correctAnswer)
-    }
-    
+
     private func configureView() {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
@@ -88,7 +84,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         counterLabel.text = step.questionNumber
     }
     
-    private func showAnswerResult(isCorrect: Bool) {
+    func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
             correctAnswers += 1
         }
