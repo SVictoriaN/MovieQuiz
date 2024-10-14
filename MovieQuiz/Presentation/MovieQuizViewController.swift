@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     // MARK: - Lifecycle
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak private var textLabel: UILabel!
